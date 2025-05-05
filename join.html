@@ -13,6 +13,26 @@
   <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.6/babel.min.js"></script>
   <!-- External CSS -->
   <link rel="stylesheet" href="join.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<!-- Firebase 身份验证 -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+<!-- Firebase Firestore 数据库 -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBxnaBVqAqYjbD8SWqLilj6Fl63Qkgw6-g",
+        authDomain: "conectteen-406d1.firebaseapp.com",
+        projectId: "conectteen-406d1",
+        storageBucket: "conectteen-406d1.firebasestorage.app",
+        messagingSenderId: "960975220865",
+        appId: "1:960975220865:web:ec834417182b231efa9d80"
+    };
+  
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+  </script>
 </head>
 <body class="bg-gradient-to-b from-purple-500 to-pink-400 min-h-screen flex items-center justify-center relative overflow-hidden">
   <!-- Background animated circles -->
@@ -46,10 +66,33 @@
         }
       };
 
-      const handleSubmit = (e) => {
+      const handleSubmit = async (e) => {
         e.preventDefault();
-        alert(window.translations[lang].joinNow + '成功！');
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const nickname = document.getElementById('nickname').value;
+
+        try {
+        // 创建账户
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const user = userCredential.user;
+
+        // 保存用户数据到 Firestore
+            await db.collection('users').doc(user.uid).set({
+              email,
+              nickname,
+              interests: selectedInterests,
+              createdAt: new Date()
+            });
+
+            alert("注册成功！");
+            window.location.href = "index.html"; // 注册后跳转页面
+        } catch (error) {
+        alert("注册失败：" + error.message);
+        }
       };
+
 
       return (
         <div className="relative z-10 bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fadeIn">
