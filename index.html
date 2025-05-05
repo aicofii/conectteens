@@ -23,6 +23,17 @@
     // Navigation Bar Component
     function Navbar({ lang, setLang }) {
       const nickname = localStorage.getItem('nickname') || 'User';
+      const isLoggedIn = !!localStorage.getItem('nickname');
+
+      const handleLogout = () => {
+        localStorage.removeItem('nickname');
+        localStorage.removeItem('language');
+        window.location.reload();
+      };
+
+      const handleLogin = () => {
+        window.location.href = 'login.html';
+      };
 
       return (
         <nav className="bg-gradient-to-r from-purple-600 to-blue-500 text-white p-4 sticky top-0 z-10">
@@ -32,6 +43,12 @@
               <span className="text-lg">
                 {window.translations[lang].welcome}, {nickname}
               </span>
+              <button
+                className="text-white hover:text-yellow-300"
+                onClick={isLoggedIn ? handleLogout : handleLogin}
+              >
+                {isLoggedIn ? window.translations[lang].logout : window.translations[lang].login}
+              </button>
               <div className="language-toggle">
                 <select
                   value={lang}
@@ -49,7 +66,7 @@
               <a href="#diary" className="hover:text-yellow-300">{window.translations[lang].diary}</a>
               <a href="#tasks" className="hover:text-yellow-300">{window.translations[lang].tasks}</a>
               <a href="#campus" className="hover:text-yellow-300">{window.translations[lang].campus}</a>
-              <a href="#avatar" className="hover:text-yellow-300">{window.translations[lang].avatar}</a>
+              <a href="perfil.html" className="hover:text-yellow-300">{window.translations[lang].aboutMe}</a>
             </div>
           </div>
         </nav>
@@ -119,7 +136,11 @@
         },
       ];
   
-      // 处理跳转到 join.html
+      // Check if user is logged in
+      const isLoggedIn = !!localStorage.getItem('nickname');
+      const nickname = localStorage.getItem('nickname') || 'User';
+  
+      // Handle navigation to join.html
       const handleJoinNow = () => {
         window.location.href = 'join.html';
       };
@@ -128,11 +149,17 @@
         <div className="min-h-screen bg-gray-50">
           <Navbar lang={lang} setLang={setLang} />
           <header className="bg-gradient-to-b from-purple-500 to-blue-400 text-white py-20 text-center">
-            <h1 className="text-4xl md:text-6xl font-bold">{window.translations[lang].welcome}</h1>
+            <h1 className="text-4xl md:text-6xl font-bold">
+              {isLoggedIn
+                ? window.translations[lang].welcomeLoggedIn.replace('{nickname}', nickname)
+                : window.translations[lang].welcome}
+            </h1>
             <p className="mt-4 text-lg md:text-xl">{window.translations[lang].welcomeSubtitle}</p>
-            <button className="btn mt-6 text-lg" onClick={handleJoinNow}>
-              {window.translations[lang].joinNow}
-            </button>
+            {!isLoggedIn && (
+              <button className="btn mt-6 text-lg" onClick={handleJoinNow}>
+                {window.translations[lang].joinNow}
+              </button>
+            )}
           </header>
           <section className="container mx-auto py-12">
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
@@ -163,6 +190,3 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93b253493dc0c009',t:'MTc0NjQ2OTk5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
-</body>
-</html>

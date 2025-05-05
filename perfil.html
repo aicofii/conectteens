@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人资料 - 青少年社交星球</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React and ReactDOM CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.6/babel.min.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-storage-compat.js"></script>
+  <!-- External CSS -->
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBxnaBVqAqYjbD8SWqLilj6Fl63Qkgw6-g",
+      authDomain: "conectteen-406d1.firebaseapp.com",
+      projectId: "conectteen-406d1",
+      storageBucket: "conectteen-406d1.firebasestorage.app",
+      messagingSenderId: "960975220865",
+      appId: "1:960975220865:web:ec834417182b231efa9d80",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+  </script>
+</head>
+<body class="bg-gradient-to-b from-purple-100 to-pink-100 min-h-screen">
+  <div id="root"></div>
+
+  <!-- Include translations.js -->
+  <script src="translations.js"></script>
+
+  <script type="text/babel">
+    function ProfilePage() {
+      const [lang, setLang] = React.useState(localStorage.getItem('language') || 'zh');
+      const [nickname, setNickname] = React.useState(localStorage.getItem('nickname') || '');
+      const [description, setDescription] = React.useState('');
+      const [name, setName] = React.useState('');
+      const [firstSurname, setFirstSurname] = React.useState('');
+      const [secondSurname, setSecondSurname] = React.useState('');
+      const [birthDate, setBirthDate] = React.useState('');
+      const [gender, setGender] = React.useState('');
+      const [photo, setPhoto] = React.useState(null);
+      const [photoFile, setPhotoFile] = React.useState(null);
+      const [user, setUser] = React.useState(null);
+      const [saveStatus, setSaveStatus] = React.useState(null);
+
+      React.useEffect(() => {
+        localStorage.setItem('language', lang);
+        // Check authentication state
+        const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+          if (currentUser) {
+            setUser(currentUser);
+            // Load existing profile data
+            db.collection('users')
+              .doc(currentUser.uid)
+              .get()
+              .then((doc) => {
+                if (doc.exists) {
+                  const data = doc.data();
+                  setNickname(data.nickname || '');
+                  setDescription(data.description || '');
+                  setName(data.name || '');
+                  setFirstSurname(data.firstSurname || '');
+                  setSecondSurname(data.secondSurname || '');
+                  setBirthDate(data.birthDate || '');
+                  setGender(data.gender || '');
+                  setPhoto(data.photoUrl || null);
+                }
+              });
+          } else {
+            // Redirect to login if not authenticated
+            window.location.href = 'login.html';
+          }
+        });
+        return () => unsubscribe();
+      }, [lang]);
+
+      React.useEffect(() => {
+        // Redirect to index.html after successful save
+        if (saveStatus === 'success') {
+          window.location.href = 'index.html';
+        }
+      }, [saveStatus]);
+
+      const handlePhotoUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          setPhotoFile(file);
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setPhoto(event.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+
+      const isFormValid = () => {
+        return (
+          nickname.trim() &&
+          description.trim() &&
+          name.trim() &&
+          firstSurname.trim() &&
+          birthDate &&
+          gender
+        );
+      };
+
+      const handleSave = async () => {
+        if (!user) return;
+        setSaveStatus(null);
+        try {
+          let photoUrl = photo;
+          if (photoFile) {
+            // Upload photo to Firebase Storage
+            const storageRef = storage.ref(`users/${user.uid}/profilePhoto`);
+            await storageRef.put(photoFile);
+            photoUrl = await storageRef.getDownloadURL();
+          }
+
+          // Save profile data to Firestore
+          await db.collection('users').doc(user.uid).set(
+            {
+              nickname,
+              description,
+              name,
+              firstSurname,
+              secondSurname,
+              birthDate,
+              gender,
+              photoUrl,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            },
+            { merge: true }
+          );
+
+          // Update localStorage nickname
+          localStorage.setItem('nickname', nickname);
+          setSaveStatus('success');
+        } catch (error) {
+          console.error('Error saving profile:', error);
+          setSaveStatus('error');
+        }
+      };
+
+      if (!user) {
+        return <div>Loading...</div>;
+      }
+
+      return (
+        <div className="container mx-auto p-6 space-y-8">
+          {/* Navbar */}
+          <nav className="bg-gradient-to-r from-purple-600 to-blue-500 text-white p-4 sticky top-0 z-10">
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-bold">{window.translations[lang].appTitle}</h1>
+              <div className="flex items-center space-x-4">
+                <div className="language-toggle">
+                  <select
+                    value={lang}
+                    onChange={(e) => setLang(e.target.value)}
+                    className="bg-white text-gray-800 rounded-lg p-2"
+                  >
+                    {Object.keys(window.languages).map((key) => (
+                      <option key={key} value={key}>
+                        {window.languages[key]}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <a href="index.html" className="hover:text-yellow-300">{window.translations[lang].home}</a>
+              </div>
+            </div>
+          </nav>
+
+          {/* Section 1: Photo, Nickname, Description */}
+          <section className="card p-6 flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-6">
+            <div className="flex-shrink-0">
+              <div className="relative w-32 h-32">
+                <img
+                  src={photo || 'https://via.placeholder.com/128'}
+                  alt="Profile Photo"
+                  className="avatar w-full h-full object-cover"
+                />
+                <label className="absolute bottom-0 right-0 bg-purple-600 text-white p-2 rounded-full cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handlePhotoUpload}
+                  />
+                  📸
+                </label>
+              </div>
+            </div>
+            <div className="flex-1">
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                className="text-2xl font-bold text-gray-800 w-full border-b border-gray-300 focus:outline-none focus:border-purple-500"
+                placeholder={window.translations[lang].nickname}
+              />
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="mt-4 w-full p-2 border rounded-lg resize-none"
+                rows="4"
+                placeholder={window.translations[lang].descriptionPlaceholder}
+              />
+            </div>
+          </section>
+
+          {/* Section 2: Personal Details */}
+          <section className="card p-6">
+            <h2 className="text-xl font-semibold text-purple-700 mb-4">{window.translations[lang].personalDetails}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 font-medium">{window.translations[lang].name}</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  placeholder={window.translations[lang].name}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium">{window.translations[lang].firstSurname}</label>
+                <input
+                  type="text"
+                  value={firstSurname}
+                  onChange={(e) => setFirstSurname(e.target.value)}
+                  className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  placeholder={window.translations[lang].firstSurname}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium">{window.translations[lang].secondSurname}</label>
+                <input
+                  type="text"
+                  value={secondSurname}
+                  onChange={(e) => setSecondSurname(e.target.value)}
+                  className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  placeholder={window.translations[lang].secondSurname}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium">{window.translations[lang].birthDate}</label>
+                <input
+                  type="date"
+                  value={birthDate}
+                  onChange={(e) => setBirthDate(e.target.value)}
+                  className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium">{window.translations[lang].gender}</label>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+                >
+                  <option value="">{window.translations[lang].select}</option>
+                  <option value="male">{window.translations[lang].male}</option>
+                  <option value="female">{window.translations[lang].female}</option>
+                  <option value="other">{window.translations[lang].other}</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          {/* Section 3: Hobbies */}
+          <section className="card p-6">
+            <h2 className="text-xl font-semibold text-purple-700 mb-4">{window.translations[lang].hobbies}</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {[
+                { name: 'Reading', emoji: '📚' },
+                { name: 'Drawing', emoji: '✍️' },
+                { name: 'Music', emoji: '🎶' },
+                { name: 'Gaming', emoji: '🎮' },
+                { name: 'Sports', emoji: '⚽' },
+                { name: 'Photography', emoji: '📸' },
+                { name: 'Cooking', emoji: '🍳' },
+                { name: 'Traveling', emoji: '✈️' },
+                { name: 'Writing', emoji: '🖋️' },
+                { name: 'Dancing', emoji: '💃' },
+                { name: 'Coding', emoji: '💻' },
+                { name: 'Hiking', emoji: '🥾' },
+                { name: 'Gardening', emoji: '🌱' },
+                { name: 'Crafting', emoji: '✂️' },
+                { name: 'Yoga', emoji: '🧘' },
+                { name: 'Singing', emoji: '🎤' },
+                { name: 'Board Games', emoji: '🎲' },
+                { name: 'Movies', emoji: '🎬' },
+                { name: 'Collecting', emoji: '🗃️' },
+                { name: 'Volunteering', emoji: '🤝' }
+              ].map((hobby, index) => (
+                <div
+                  key={index}
+                  className="flex items-center space-x-2 p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition"
+                >
+                  <span className="text-2xl">{hobby.emoji}</span>
+                  <span className="text-gray-800">{hobby.name}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Save Button and Status */}
+          <div className="flex justify-end">
+            <button
+              onClick={handleSave}
+              disabled={!isFormValid()}
+              className={`btn py-3 px-6 ${
+                isFormValid()
+                  ? 'bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600'
+                  : 'bg-gray-400 cursor-not-allowed'
+              } text-white font-bold rounded-full transition`}
+            >
+              {window.translations[lang].save || 'Save'}
+            </button>
+          </div>
+          {saveStatus === 'success' && (
+            <p className="text-green-600 text-center">
+              {window.translations[lang].saveSuccess || 'Profile saved successfully!'}
+            </p>
+          )}
+          {saveStatus === 'error' && (
+            <p className="text-red-600 text-center">
+              {window.translations[lang].saveFailed || 'Failed to save profile. Please try again.'}
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<ProfilePage />);
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93b278110d02bfca',t:'MTc0NjQ3MTUwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+</body>
+</html>
