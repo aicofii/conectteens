@@ -22,7 +22,7 @@
   <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBxnaBVqAqYjbD8SWqLilj6Fl63Qkgw6-g",
-        authDomain: "conectteen-406d1.firebaseapp.com",
+        authDomain: "conectteen-406d1.firebaseDiscovered: app.com",
         projectId: "conectteen-406d1",
         storageBucket: "conectteen-406d1.firebasestorage.app",
         messagingSenderId: "960975220865",
@@ -49,21 +49,20 @@
   <script type="text/babel">
     function JoinForm() {
       const [lang, setLang] = React.useState(localStorage.getItem('language') || 'zh');
-      const [selectedInterests, setSelectedInterests] = React.useState([]);
+      const [showPassword, setShowPassword] = React.useState(false);
+      const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
       // Update localStorage when language changes
       React.useEffect(() => {
         localStorage.setItem('language', lang);
       }, [lang]);
 
-      const interests = ['音乐', '绘画', '运动', '编程', '阅读'];
+      const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+      };
 
-      const handleInterestToggle = (interest) => {
-        if (selectedInterests.includes(interest)) {
-          setSelectedInterests(selectedInterests.filter((i) => i !== interest));
-        } else {
-          setSelectedInterests([...selectedInterests, interest]);
-        }
+      const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
       };
 
       const handleSubmit = async (e) => {
@@ -71,7 +70,14 @@
 
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
         const nickname = document.getElementById('nickname').value;
+
+        // Validate password match
+        if (password !== confirmPassword) {
+          alert("两次输入的密码不一致，请重新输入。");
+          return;
+        }
 
         try {
           // 创建账户
@@ -82,11 +88,9 @@
           await db.collection('users').doc(user.uid).set({
             email,
             nickname,
-            interests: selectedInterests,
             createdAt: new Date()
           });
 
-         
           window.location.href = "login.html"; // Redirect to login page
         } catch (error) {
           alert("注册失败：" + error.message);
@@ -94,92 +98,118 @@
       };
 
       return (
-        <div className="relative z-10 bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fadeIn">
-          <div className="flex justify-end mb-4">
-            <div className="language-toggle">
-              <select
-                value={lang}
-                onChange={(e) => setLang(e.target.value)}
-                className="bg-white text-gray-800 rounded-lg p-2"
-              >
-                {Object.keys(window.languages).map((key) => (
-                  <option key={key} value={key}>
-                    {window.languages[key]}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-4">
-            {window.translations[lang].joinNow}
-          </h1>
-          <p className="text-center text-gray-600 mb-8">
-            {window.translations[lang].welcomeSubtitle}
-          </p>
-          <form id="joinForm" className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label className="block text-gray-700 font-medium">{window.translations[lang].nickname || 'Nickname'}</label>
-              <input
-                id="nickname"
-                type="text"
-                placeholder={window.translations[lang].nickname || 'Your nickname'}
-                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium">{window.translations[lang].email || 'Email'}</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="example@mail.com"
-                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium">{window.translations[lang].password || 'Password'}</label>
-              <input
-                id="password"
-                type="password"
-                placeholder={window.translations[lang].passwordPlaceholder || 'At least 8 characters'}
-                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
-                minLength="8"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium">{window.translations[lang].interests || 'Interests'}</label>
-              <div id="interests" className="mt-2 flex flex-wrap gap-2">
-                {interests.map((interest) => (
-                  <button
-                    type="button"
-                    key={interest}
-                    className={`interest-btn px-3 py-1 rounded-full transition ${
-                      selectedInterests.includes(interest)
-                        ? 'bg-purple-700 text-white'
-                        : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                    }`}
-                    onClick={() => handleInterestToggle(interest)}
-                  >
-                    {interest}
-                  </button>
-                ))}
+        <div className="relative z-10 bg-white rounded-2xl p-8 w-full max-w-4xl shadow-2xl animate-fadeIn mx-4">
+          <div className="max-w-md mx-auto">
+            <div className="flex justify-end mb-4">
+              <div className="language-toggle">
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value)}
+                  className="bg-white text-gray-800 rounded-lg p-2"
+                >
+                  {Object.keys(window.languages).map((key) => (
+                    <option key={key} value={key}>
+                      {window.languages[key]}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
-            <button
-              type="submit"
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold rounded-full hover:from-purple-700 hover:to-blue-600 transition"
-            >
-              {window.translations[lang].joinNow}
-            </button>
-          </form>
-          <p className="text-center text-gray-500 text-sm mt-6">
-            {window.translations[lang].alreadyHaveAccount || 'Already have an account?'}{' '}
-            <a href="login.html" className="text-purple-600 hover:underline">
-              {window.translations[lang].login || 'Login'}
-            </a>
-          </p>
+            <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-4">
+              {window.translations[lang].joinNow || '加入社交星球'}
+            </h1>
+            <p className="text-center text-gray-600 mb-8">
+              {window.translations[lang].welcomeSubtitle || '欢迎加入社交星球！'}
+            </p>
+            <form id="joinForm" className="space-y-6" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-gray-700 font-medium">{window.translations[lang].nickname || '昵称'}</label>
+                <input
+                  id="nickname"
+                  type="text"
+                  placeholder={window.translations[lang].nickname || '请输入您的昵称'}
+                  className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 font-medium">{window.translations[lang].email || '邮箱'}</label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="example@mail.com"
+                  className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                  required
+                />
+              </div>
+              <div className="relative">
+                <label className="block text-gray-700 font-medium">{window.translations[lang].password || '密码'}</label>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder={window.translations[lang].passwordPlaceholder || '至少8个字符'}
+                  className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                  minLength="8"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-10 text-gray-500 hover:text-gray-700"
+                  onClick={togglePasswordVisibility}
+                >
+                  {showPassword ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.79m0 0L21 21"></path>
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                  )}
+                </button>
+              </div>
+              <div className="relative">
+                <label className="block text-gray-700 font-medium">{window.translations[lang].confirmPassword || '确认密码'}</label>
+                <input
+                  id="confirm-password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder={window.translations[lang].confirmPasswordPlaceholder || '请再次输入密码'}
+                  className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                  minLength="8"
+                  required
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-10 text-gray-500 hover:text-gray-700"
+                  onClick={toggleConfirmPasswordVisibility}
+                >
+                  {showConfirmPassword ? (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.79m0 0L21 21"></path>
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                  )}
+                </button>
+              </div>
+              <button
+                type="submit"
+                className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold rounded-full hover:from-purple-700 hover:to-blue-600 transition"
+              >
+                {window.translations[lang].joinNow || '立即加入'}
+              </button>
+            </form>
+            <p className="text-center text-gray-500 text-sm mt-6">
+              {window.translations[lang].alreadyHaveAccount || '已有账户？'}{' '}
+              <a href="login.html" className="text-purple-600 hover:underline">
+                {window.translations[lang].login || '登录'}
+              </a>
+            </p>
+          </div>
         </div>
       );
     }
@@ -188,5 +218,6 @@
     root.render(<JoinForm />);
   </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93b1dce26d85b093',t:'MTc0NjQ2NTE0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93b20f2a29fd9934',t:'MTc0NjQ2NzIwNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
