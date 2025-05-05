@@ -14,6 +14,7 @@
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
   <!-- External CSS -->
   <link rel="stylesheet" href="join.css" />
   <script>
@@ -28,6 +29,7 @@
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
   </script>
 </head>
 <body class="bg-gradient-to-b from-purple-500 to-pink-400 min-h-screen flex items-center justify-center relative overflow-hidden">
@@ -57,8 +59,20 @@
         const password = document.getElementById('password').value;
 
         try {
-          await auth.signInWithEmailAndPassword(email, password);
-         
+          const userCredential = await auth.signInWithEmailAndPassword(email, password);
+          const user = userCredential.user;
+
+          // Fetch user data from Firestore
+          const userDoc = await db.collection('users').doc(user.uid).get();
+          if (userDoc.exists) {
+            const userData = userDoc.data();
+            // Store nickname in localStorage
+            localStorage.setItem('nickname', userData.nickname);
+          } else {
+            // Fallback in case user document doesn't exist
+            localStorage.setItem('nickname', 'User');
+          }
+
           window.location.href = "index.html"; // Redirect to index.html
         } catch (error) {
           alert("登录失败：" + error.message);
@@ -129,5 +143,6 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<LoginForm />);
   </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93b253493d2b456b',t:'MTc0NjQ2OTk5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
