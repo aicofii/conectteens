@@ -9,6 +9,7 @@ const App = () => {
     { id: 1, title: 'Read 10 pages', points: 50, completed: false },
     { id: 2, title: 'Draw something fun', points: 30, completed: false },
   ]);
+  const [lang, setLang] = useState('zh'); // Default to Chinese
 
   const moods = ['😊', '😢', '😍', '😣', '🥳'];
 
@@ -31,10 +32,25 @@ const App = () => {
   if (parentMode) {
     return (
       <div className="max-w-4xl mx-auto p-4">
-        <h1 className="text-3xl font-bold text-purple-800">Parent Guardian Mode</h1>
-        <p className="mt-4 text-gray-700">Usage Time: 2 hours today</p>
-        <p className="text-gray-700">Mood Trend: Mostly 😊 with some 😢</p>
-        <button className="btn mt-4" onClick={() => setParentMode(false)}>Switch to Teen Mode</button>
+        <h1 className="text-3xl font-bold text-purple-800">{window.translations[lang].parentGuardianMode}</h1>
+        <p className="mt-4 text-gray-700">{window.translations[lang].usageTime}</p>
+        <p className="text-gray-700">{window.translations[lang].moodTrend}</p>
+        <button className="btn mt-4" onClick={() => setParentMode(false)}>
+          {window.translations[lang].switchToTeenMode}
+        </button>
+        <div className="language-toggle mt-4">
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value)}
+            className="bg-white text-gray-800 rounded-lg p-2"
+          >
+            {Object.keys(window.languages).map((key) => (
+              <option key={key} value={key}>
+                {window.languages[key]}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     );
   }
@@ -43,13 +59,30 @@ const App = () => {
     <div className="max-w-4xl mx-auto p-4 space-y-8">
       {/* Header */}
       <header className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-purple-800">TeenVibe</h1>
-        <button className="btn" onClick={() => setParentMode(true)}>Parent Mode</button>
+        <h1 className="text-3xl font-bold text-purple-800">{window.translations[lang].appTitle}</h1>
+        <div className="flex items-center space-x-4">
+          <button className="btn" onClick={() => setParentMode(true)}>
+            {window.translations[lang].parentMode}
+          </button>
+          <div className="language-toggle">
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value)}
+              className="bg-white text-gray-800 rounded-lg p-2"
+            >
+              {Object.keys(window.languages).map((key) => (
+                <option key={key} value={key}>
+                  {window.languages[key]}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </header>
 
       {/* Virtual Avatar Space */}
       <section className="card p-6">
-        <h2 className="text-xl font-semibold text-purple-700">Your Vibe Space</h2>
+        <h2 className="text-xl font-semibold text-purple-700">{window.translations[lang].yourVibeSpace}</h2>
         <div className="flex items-center space-x-4 mt-4">
           <img src="https://via.placeholder.com/100" alt="Avatar" className="avatar" />
           <div>
@@ -62,7 +95,7 @@ const App = () => {
 
       {/* Anonymous Diary */}
       <section className="card p-6">
-        <h2 className="text-xl font-semibold text-purple-700">Emotions Diary</h2>
+        <h2 className="text-xl font-semibold text-purple-700">{window.translations[lang].emotionsDiary}</h2>
         <div className="flex space-x-2 mt-4">
           {moods.map(mood => (
             <span
@@ -76,11 +109,13 @@ const App = () => {
         </div>
         <textarea
           className="w-full mt-4 p-2 border rounded-lg"
-          placeholder="Share your feelings anonymously..."
+          placeholder={window.translations[lang].shareFeelings}
           value={diaryEntry}
           onChange={(e) => setDiaryEntry(e.target.value)}
         />
-        <button className="btn mt-4" onClick={handlePostDiary}>Post Anonymously</button>
+        <button className="btn mt-4" onClick={handlePostDiary}>
+          {window.translations[lang].postAnonymously}
+        </button>
         <div className="mt-6 space-y-4">
           {posts.map(post => (
             <div key={post.id} className="p-4 bg-purple-50 rounded-lg">
@@ -89,7 +124,7 @@ const App = () => {
                 className="text-purple-600 mt-2"
                 onClick={() => handleResonate(post.id)}
               >
-                Resonate ({post.resonates})
+                {window.translations[lang].cheer} ({post.resonates})
               </button>
             </div>
           ))}
@@ -98,7 +133,7 @@ const App = () => {
 
       {/* Gamified Tasks */}
       <section className="card p-6">
-        <h2 className="text-xl font-semibold text-purple-700">Vibe Challenges</h2>
+        <h2 className="text-xl font-semibold text-purple-700">{window.translations[lang].vibeChallenges}</h2>
         <div className="mt-4 space-y-4">
           {tasks.map(task => (
             <div key={task.id} className="flex justify-between items-center p-4 bg-pink-50 rounded-lg">
@@ -106,7 +141,9 @@ const App = () => {
                 {task.title} ({task.points} points)
               </p>
               {!task.completed && (
-                <button className="btn" onClick={() => handleTaskComplete(task.id)}>Complete</button>
+                <button className="btn" onClick={() => handleTaskComplete(task.id)}>
+                  {window.translations[lang].checkIn}
+                </button>
               )}
             </div>
           ))}
@@ -115,19 +152,21 @@ const App = () => {
 
       {/* School Feed */}
       <section className="card p-6">
-        <h2 className="text-xl font-semibold text-purple-700">School Vibe</h2>
-        <p className="mt-4 text-gray-600">Verified: Class 7B, Sunnydale School</p>
+        <h2 className="text-xl font-semibold text-purple-700">{window.translations[lang].schoolVibe}</h2>
+        <p className="mt-4 text-gray-600">{window.translations[lang].verifiedSchool}</p>
         <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-          <p className="text-gray-800">📚 Study group forming for math! Join us after school.</p>
-          <button className="text-purple-600 mt-2">Cheer (12)</button>
+          <p className="text-gray-800">{window.translations[lang].studyGroup}</p>
+          <button className="text-purple-600 mt-2">
+            {window.translations[lang].cheer} (12)
+          </button>
         </div>
       </section>
 
       {/* Offline Meetup Prompt */}
       <section className="card p-6">
-        <h2 className="text-xl font-semibold text-purple-700">Real-World Vibes</h2>
-        <p className="mt-4 text-gray-800">Task: Meet friends for a park hangout this weekend!</p>
-        <button className="btn mt-4">Check-In</button>
+        <h2 className="text-xl font-semibold text-purple-700">{window.translations[lang].realWorldVibesTitle}</h2>
+        <p className="mt-4 text-gray-800">{window.translations[lang].meetupTask}</p>
+        <button className="btn mt-4">{window.translations[lang].checkIn}</button>
       </section>
     </div>
   );
