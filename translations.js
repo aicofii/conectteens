@@ -46,9 +46,16 @@ window.translations = {
       email: "Email",
       password: "Password",
       interests: "Interests",
+      profilePhoto: "Profile Photo",
+      description: "About Yourself",
+      descriptionPlaceholder: "Tell us about yourself...",
       alreadyHaveAccount: "Already have an account?",
       login: "Login",
-      passwordPlaceholder: "At least 8 characters"
+      passwordPlaceholder: "At least 8 characters",
+      registrationSuccess: "Registration successful!",
+      registrationFailed: "Registration failed",
+      loginFailed: "Login failed",
+      noAccount: "Don't have an account?"
     },
     es: {
       appTitle: "VibraAdolescente",
@@ -97,9 +104,16 @@ window.translations = {
       email: "Correo electrónico",
       password: "Contraseña",
       interests: "Intereses",
+      profilePhoto: "Foto de Perfil",
+      description: "Acerca de Ti",
+      descriptionPlaceholder: "Cuéntanos sobre ti...",
       alreadyHaveAccount: "¿Ya tienes una cuenta?",
       login: "Iniciar sesión",
-      passwordPlaceholder: "Al menos 8 caracteres"
+      passwordPlaceholder: "Al menos 8 caracteres",
+      registrationSuccess: "¡Registro exitoso!",
+      registrationFailed: "Registro fallido",
+      loginFailed: "Inicio de sesión fallido",
+      noAccount: "¿No tienes una cuenta?"
     },
     zh: {
       appTitle: "青少年星球",
@@ -148,9 +162,16 @@ window.translations = {
       email: "邮箱",
       password: "密码",
       interests: "兴趣",
+      profilePhoto: "个人照片",
+      description: "关于你自己",
+      descriptionPlaceholder: "介绍一下你自己...",
       alreadyHaveAccount: "已有账号？",
       login: "去登录",
-      passwordPlaceholder: "至少8位"
+      passwordPlaceholder: "至少8位",
+      registrationSuccess: "注册成功！",
+      registrationFailed: "注册失败",
+      loginFailed: "登录失败",
+      noAccount: "还没有账号？"
     },
   };
   

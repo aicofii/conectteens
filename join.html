@@ -14,9 +14,9 @@
   <!-- External CSS -->
   <link rel="stylesheet" href="join.css" />
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
-<!-- Firebase 身份验证 -->
+  <!-- Firebase 身份验证 -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-auth-compat.js"></script>
-<!-- Firebase Firestore 数据库 -->
+  <!-- Firebase Firestore 数据库 -->
   <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
 
   <script>
@@ -74,25 +74,24 @@
         const nickname = document.getElementById('nickname').value;
 
         try {
-        // 创建账户
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            const user = userCredential.user;
+          // 创建账户
+          const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+          const user = userCredential.user;
 
-        // 保存用户数据到 Firestore
-            await db.collection('users').doc(user.uid).set({
-              email,
-              nickname,
-              interests: selectedInterests,
-              createdAt: new Date()
-            });
+          // 保存用户数据到 Firestore
+          await db.collection('users').doc(user.uid).set({
+            email,
+            nickname,
+            interests: selectedInterests,
+            createdAt: new Date()
+          });
 
-            alert("注册成功！");
-            window.location.href = "index.html"; // 注册后跳转页面
+         
+          window.location.href = "login.html"; // Redirect to login page
         } catch (error) {
-        alert("注册失败：" + error.message);
+          alert("注册失败：" + error.message);
         }
       };
-
 
       return (
         <div className="relative z-10 bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fadeIn">
@@ -177,7 +176,7 @@
           </form>
           <p className="text-center text-gray-500 text-sm mt-6">
             {window.translations[lang].alreadyHaveAccount || 'Already have an account?'}{' '}
-            <a href="index.html" className="text-purple-600 hover:underline">
+            <a href="login.html" className="text-purple-600 hover:underline">
               {window.translations[lang].login || 'Login'}
             </a>
           </p>
@@ -188,5 +187,6 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<JoinForm />);
   </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'93b1dce26d85b093',t:'MTc0NjQ2NTE0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
