@@ -50,7 +50,7 @@
         </nav>
       );
     }
-
+  
     // Feature Card Component
     function FeatureCard({ title, description, emoji, bgColor, lang }) {
       return (
@@ -64,11 +64,17 @@
         </div>
       );
     }
-
+  
     // Main App Component
     function App() {
-      const [lang, setLang] = React.useState('zh'); // Default to Chinese
-
+      // Initialize language from localStorage or default to 'zh'
+      const [lang, setLang] = React.useState(localStorage.getItem('language') || 'zh');
+  
+      // Update localStorage whenever language changes
+      React.useEffect(() => {
+        localStorage.setItem('language', lang);
+      }, [lang]);
+  
       const features = [
         {
           title: "anonymousDiary",
@@ -107,14 +113,19 @@
           bgColor: "bg-orange-100",
         },
       ];
-
+  
+      // 处理跳转到 join.html
+      const handleJoinNow = () => {
+        window.location.href = 'join.html';
+      };
+  
       return (
         <div className="min-h-screen bg-gray-50">
           <Navbar lang={lang} setLang={setLang} />
           <header className="bg-gradient-to-b from-purple-500 to-blue-400 text-white py-20 text-center">
             <h1 className="text-4xl md:text-6xl font-bold">{window.translations[lang].welcome}</h1>
             <p className="mt-4 text-lg md:text-xl">{window.translations[lang].welcomeSubtitle}</p>
-            <button className="btn mt-6 text-lg">
+            <button className="btn mt-6 text-lg" onClick={handleJoinNow}>
               {window.translations[lang].joinNow}
             </button>
           </header>
@@ -142,7 +153,7 @@
         </div>
       );
     }
-
+  
     // Render the App
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);

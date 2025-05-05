@@ -1,4 +1,3 @@
-// translations.js
 window.translations = {
     en: {
       appTitle: "TeenVibe",
@@ -43,6 +42,13 @@ window.translations = {
       tasks: "Tasks",
       campus: "Campus",
       avatar: "Avatar",
+      nickname: "Nickname",
+      email: "Email",
+      password: "Password",
+      interests: "Interests",
+      alreadyHaveAccount: "Already have an account?",
+      login: "Login",
+      passwordPlaceholder: "At least 8 characters"
     },
     es: {
       appTitle: "VibraAdolescente",
@@ -87,6 +93,13 @@ window.translations = {
       tasks: "Tareas",
       campus: "Campus",
       avatar: "Avatar",
+      nickname: "Nombre de usuario",
+      email: "Correo electrónico",
+      password: "Contraseña",
+      interests: "Intereses",
+      alreadyHaveAccount: "¿Ya tienes una cuenta?",
+      login: "Iniciar sesión",
+      passwordPlaceholder: "Al menos 8 caracteres"
     },
     zh: {
       appTitle: "青少年星球",
@@ -131,6 +144,13 @@ window.translations = {
       tasks: "任务",
       campus: "校园",
       avatar: "头像",
+      nickname: "昵称",
+      email: "邮箱",
+      password: "密码",
+      interests: "兴趣",
+      alreadyHaveAccount: "已有账号？",
+      login: "去登录",
+      passwordPlaceholder: "至少8位"
     },
   };
   

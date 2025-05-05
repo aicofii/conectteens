@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>加入社交星球</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React and ReactDOM CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.6/babel.min.js"></script>
+  <!-- External CSS -->
+  <link rel="stylesheet" href="join.css" />
+</head>
+<body class="bg-gradient-to-b from-purple-500 to-pink-400 min-h-screen flex items-center justify-center relative overflow-hidden">
+  <!-- Background animated circles -->
+  <div class="absolute top-0 left-0 w-full h-full">
+    <div class="absolute -left-10 -top-10 w-80 h-80 bg-purple-300 rounded-full opacity-30 animate-fadeIn delay-200"></div>
+    <div class="absolute -right-20 -bottom-10 w-96 h-96 bg-pink-300 rounded-full opacity-20 animate-fadeIn delay-400"></div>
+  </div>
+
+  <div id="root"></div>
+
+  <!-- Include translations.js -->
+  <script src="translations.js"></script>
+
+  <script type="text/babel">
+    function JoinForm() {
+      const [lang, setLang] = React.useState(localStorage.getItem('language') || 'zh');
+      const [selectedInterests, setSelectedInterests] = React.useState([]);
+
+      // Update localStorage when language changes
+      React.useEffect(() => {
+        localStorage.setItem('language', lang);
+      }, [lang]);
+
+      const interests = ['音乐', '绘画', '运动', '编程', '阅读'];
+
+      const handleInterestToggle = (interest) => {
+        if (selectedInterests.includes(interest)) {
+          setSelectedInterests(selectedInterests.filter((i) => i !== interest));
+        } else {
+          setSelectedInterests([...selectedInterests, interest]);
+        }
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        alert(window.translations[lang].joinNow + '成功！');
+      };
+
+      return (
+        <div className="relative z-10 bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-fadeIn">
+          <div className="flex justify-end mb-4">
+            <div className="language-toggle">
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+                className="bg-white text-gray-800 rounded-lg p-2"
+              >
+                {Object.keys(window.languages).map((key) => (
+                  <option key={key} value={key}>
+                    {window.languages[key]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <h1 className="text-3xl font-extrabold text-center text-gray-800 mb-4">
+            {window.translations[lang].joinNow}
+          </h1>
+          <p className="text-center text-gray-600 mb-8">
+            {window.translations[lang].welcomeSubtitle}
+          </p>
+          <form id="joinForm" className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label className="block text-gray-700 font-medium">{window.translations[lang].nickname || 'Nickname'}</label>
+              <input
+                id="nickname"
+                type="text"
+                placeholder={window.translations[lang].nickname || 'Your nickname'}
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium">{window.translations[lang].email || 'Email'}</label>
+              <input
+                id="email"
+                type="email"
+                placeholder="example@mail.com"
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium">{window.translations[lang].password || 'Password'}</label>
+              <input
+                id="password"
+                type="password"
+                placeholder={window.translations[lang].passwordPlaceholder || 'At least 8 characters'}
+                className="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+                minLength="8"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium">{window.translations[lang].interests || 'Interests'}</label>
+              <div id="interests" className="mt-2 flex flex-wrap gap-2">
+                {interests.map((interest) => (
+                  <button
+                    type="button"
+                    key={interest}
+                    className={`interest-btn px-3 py-1 rounded-full transition ${
+                      selectedInterests.includes(interest)
+                        ? 'bg-purple-700 text-white'
+                        : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                    }`}
+                    onClick={() => handleInterestToggle(interest)}
+                  >
+                    {interest}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-blue-500 text-white font-bold rounded-full hover:from-purple-700 hover:to-blue-600 transition"
+            >
+              {window.translations[lang].joinNow}
+            </button>
+          </form>
+          <p className="text-center text-gray-500 text-sm mt-6">
+            {window.translations[lang].alreadyHaveAccount || 'Already have an account?'}{' '}
+            <a href="index.html" className="text-purple-600 hover:underline">
+              {window.translations[lang].login || 'Login'}
+            </a>
+          </p>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<JoinForm />);
+  </script>
+</body>
+</html>
