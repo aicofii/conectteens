@@ -11,9 +11,6 @@
   <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
   <!-- Babel for JSX -->
   <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.6/babel.min.js"></script>
-  <!-- Babel 解释器 -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -75,31 +72,39 @@
         </nav>
       );
     }
-  
+
     // Feature Card Component
     function FeatureCard({ title, description, emoji, bgColor, lang }) {
+      const handleExperienceClick = () => {
+        if (title === "anonymousDiary") {
+          window.location.href = "diary.html";
+        } else if (title === "growthCheckIn") {
+          window.location.href = "checkin.html";
+        }
+      };
+
       return (
         <div className={`card p-6 ${bgColor}`}>
           <div className="text-4xl mb-4">{emoji}</div>
           <h2 className="text-xl font-semibold text-gray-800">{window.translations[lang][title]}</h2>
           <p className="text-gray-600 mt-2">{window.translations[lang][description]}</p>
-          <button className="btn mt-4">
+          <button className="btn mt-4" onClick={handleExperienceClick}>
             {window.translations[lang].experienceNow}
           </button>
         </div>
       );
     }
-  
+
     // Main App Component
     function App() {
       // Initialize language from localStorage or default to 'zh'
       const [lang, setLang] = React.useState(localStorage.getItem('language') || 'zh');
-  
+
       // Update localStorage whenever language changes
       React.useEffect(() => {
         localStorage.setItem('language', lang);
       }, [lang]);
-  
+
       const features = [
         {
           title: "anonymousDiary",
@@ -138,16 +143,16 @@
           bgColor: "bg-orange-100",
         },
       ];
-  
+
       // Check if user is logged in
       const isLoggedIn = !!localStorage.getItem('nickname');
       const nickname = localStorage.getItem('nickname') || 'User';
-  
+
       // Handle navigation to join.html
       const handleJoinNow = () => {
         window.location.href = 'join.html';
       };
-  
+
       return (
         <div className="min-h-screen bg-gray-50">
           <Navbar lang={lang} setLang={setLang} />
@@ -188,8 +193,10 @@
         </div>
       );
     }
-  
+
     // Render the App
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
+</body>
+</html>
